@@ -1,0 +1,30 @@
+def calculate_auc_trap(y_true, y_pred_prob):
+    sorted_pairs = sorted(zip(y_pred_prob, y_true), key=lambda x: x[0], reverse=True)
+    sorted_scores, sorted_labels = zip(*sorted_pairs)
+    fpr_list = []
+    tpr_list = []
+    pos_count = sum(sorted_labels)
+    neg_count = len(sorted_labels) - pos_count
+    fp = 0
+    tp = 0
+    for label in sorted_labels:
+        if label == 1:
+            tp += 1
+        else:
+            fp += 1
+        fpr = fp / neg_count if neg_count != 0 else 0.0
+        tpr = tp / pos_count if pos_count != 0 else 0.0
+        fpr_list.append(fpr)
+        tpr_list.append(tpr)
+    auc = 0.0
+    for i in range(len(fpr_list) - 1):
+        dx = fpr_list[i+1] - fpr_list[i]
+        dy_avg = (tpr_list[i] + tpr_list[i+1]) / 2
+        auc += dx * dy_avg
+    return auc
+
+y_true = [1, 0, 1, 1, 0, 1, 0, 1]
+y_pred_prob = [0.8, 0.3, 0.4, 0.9, 0.2, 0.7, 0.6, 0.55]
+
+auc = calculate_auc_trap(y_true, y_pred_prob)
+print(f" AUC：{auc:.4f}")
